@@ -35,3 +35,11 @@
       </div>
       <img class="header__pikachu" src="{{ base_url() }}/assets/img/pikachu.png" width="75px" alt="pika pika">
     </header>
+
+    <nav class="navbar navbar-light bg-light justify-content-between">
+  <form class="form-inline" method="get" action="{{ path_for('search') }}">
+    <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+    <a href="{{ path_for('types') }}">See all types</a>
+</nav>

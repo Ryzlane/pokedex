@@ -8,8 +8,9 @@ use \Psr\Http\Message\ResponseInterface as Response;
 $app
     ->get(
         '/',
-        function(Request $request, Response $response, $arguments)
+        function(Request $request, Response $response)
         {
+
             $query = $this->db->query('SELECT * FROM pokemons LIMIT 0,25');
             $pokemons = $query->fetchAll();
 
@@ -23,6 +24,19 @@ $app
         }
     )
     ->setName('home');
+
+// SEARCH
+$app
+    ->get(
+        '/pokemon/search',
+        function(Request $request, Response $response, $arguments)
+        {
+            $url = $this->router->pathFor('pokemon', [ 'slug' => $_GET['search'] ]);
+
+            return $response->withRedirect($url);
+        }
+    )
+    ->setName('search');
 
 // POKEMONS LIST
 $app
@@ -71,12 +85,8 @@ $app
             $query = $this->db->query('SELECT * FROM types');
             $types = $query->fetchAll();
 
-            $query = $this->db->query('SELECT * FROM pokemons_types');
-            $pokemons_types = $query->fetchAll();
-
             $dataView = [
                 'types' => $types,
-                'pokemons_types' => $pokemons_types,
             ];
 
             return $this->view->render($response, 'pages/types.twig', $dataView);
@@ -91,7 +101,7 @@ $app
 // TYPE
 $app
     ->get(
-        '/types/{slug:[a-zA-Z0-9_-]+}',
+        '/types/{slug:[a-zA-Z0-9_-]+}/{pageNumber:\d+}',
         function(Request $request, Response $response, $arguments)
         {
 
@@ -105,16 +115,29 @@ $app
                 throw new \Slim\Exception\NotFoundException($request, $response);
             } 
 
-            $prepare = $this->db->prepare('SELECT * FROM pokemons LEFT JOIN pokemons_types ON pokemons.id = pokemons_types.id_pokemon WHERE pokemons_types.id_type = :type_id');
+            $prepare = $this->db->prepare('SELECT COUNT(*) AS count FROM pokemons LEFT JOIN pokemons_types ON pokemons.id = pokemons_types.id_pokemon WHERE pokemons_types.id_type = :type_id');
             $prepare->bindValue(':type_id', $type->id);
             $prepare->execute();
-            $pokemons = $prepare->fetchAll();
+            $total = $prepare->fetch();
 
-            echo count($pokemons).PHP_EOL;
+            $pokemonsPerPage=25;
+
+            $numberOfPages = ceil( $total->count/$pokemonsPerPage );
+
+            $actualPage = $arguments['pageNumber'];
+
+            $offset=($actualPage-1)*25;
+
+            $prepare = $this->db->prepare('SELECT * FROM pokemons LEFT JOIN pokemons_types ON pokemons.id = pokemons_types.id_pokemon WHERE pokemons_types.id_type = :type_id LIMIT 25 OFFSET :offset');
+            $prepare->bindValue(':type_id', $type->id);
+            $prepare->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $prepare->execute();
+            $pokemons = $prepare->fetchAll();
 
             $dataView = [
                 'type' => $type,
                 'pokemons' => $pokemons,
+                'numberOfPages' => $numberOfPages,
             ];
 
             // Render
@@ -142,7 +165,7 @@ $app
             $prepare = $this->db->prepare('SELECT * FROM types INNER JOIN pokemons_types ON types.id = pokemons_types.id_type WHERE pokemons_types.id_pokemon = :pokeid');
             $prepare->bindValue(':pokeid', $pokemon->id);
             $prepare->execute();
-            $type = $prepare->fetch();          
+            $type = $prepare->fetch();  
 
             $dataView = [
                 'pokemon' => $pokemon,

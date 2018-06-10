@@ -15,7 +15,7 @@
                 <li class="list-group-item">Weight : {{ pokemon.weight }}</li>
             </ul>
             <div class="card-body">
-                <a href="{{ path_for('type', { slug: type.slug }) }}" class="card-link">See type</a>
+                <a href="{{ path_for('type', { slug: type.slug, pageNumber: 1 }) }}" class="card-link">See type</a>
                 <a href="{{ path_for('random') }}" class="card-link">Random pokemon</a>
             </div>
         </div>
