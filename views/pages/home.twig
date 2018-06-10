@@ -1,0 +1,40 @@
+{{ include('partials/header.twig', {title: 'Pokedex'}) }}
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    <li class="page-item"><a class="page-link" href="{{ path_for('home') }}">{{ 1 }}</a></li>
+    {% for i in 2..33 %}
+    <li class="page-item"><a class="page-link" href="{{ path_for('pokemons', { pageNumber: i }) }}">{{ i }}</a></li>
+    {% endfor %}
+  </ul>
+</nav>
+
+<a class="page-link" href="{{ path_for('types') }}">See all types</a>
+
+<div class="div-to-center">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Number</th>
+                <th scope="col">Picture</th>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Access</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for _pokemon in pokemons %}
+            <tr>
+                <th scope="row">{{ _pokemon.id}}</td>
+                <td><img src="{{ base_url() ~ '/assets/img' ~ _pokemon.picture }}" alt=""></td>
+                <td>{{_pokemon.name}}</td>
+                <td>Type</td>
+                <td><a href="{{ path_for('pokemon', { slug: _pokemon.slug }) }}" style="color: #EC3B2F;"><i class="fas fa-arrow-right"></i></a></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{{ include('partials/footer.twig') }}

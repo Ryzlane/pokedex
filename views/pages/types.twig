@@ -1,0 +1,25 @@
+{{ include('partials/header.twig', {title: 'Types'}) }}
+
+<div class="div-to-center">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Pokemons</th>
+                <th scope="col">Access</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for _type in types %}
+            <tr>
+                <td>{{ _type.name }}</td>
+                <td>17</td>
+                <td><a href="{{ path_for('type', { slug: _type.slug }) }}" style="color: #EC3B2F;"><i class="fas fa-arrow-right"></i></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{{ include('partials/footer.twig') }}
